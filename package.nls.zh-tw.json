@@ -26,6 +26,7 @@
     "markdown-image.base.uploadMethods": "可用於並行上傳的多個上傳方法。默認為空，列表應包含上述提到的 `#markdown-image.base.uploadMethod#` 選項的可選值。配置的上傳方法的上傳結果將不會插入到 Markdown 文件中。",
     "markdown-image.base.urlEncode": "是否對圖像的 URL 編碼。",
     "markdown-image.base.fileFormat": "剪貼板圖像文件格式。 您可以使用`png`或`jpg`。",
+    "markdown-image.base.jpgQuality": "將剪貼板 PNG 轉為 JPG 時使用的 JPEG 品質（1-100）。",
     "markdown-image.base.codeType": "插入代碼的類型",
     "markdown-image.base.codeType.Markdown": "Markdown 代碼，比如：![image](./image/file/path.jpg)",
     "markdown-image.base.codeType.HTML": "HTML 代碼，比如：<img alt=\"image\" src=\"./image/file/path.jpg\" />",

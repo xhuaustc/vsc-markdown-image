@@ -185,6 +185,15 @@
             ],
             "order": 8,
             "type": "string"
+          },
+          "markdown-image.base.jpgQuality": {
+            "default": 90,
+            "markdownDescription": "%markdown-image.base.jpgQuality%",
+            "minimum": 1,
+            "maximum": 100,
+            "multipleOf": 1,
+            "order": 9,
+            "type": "number"
           }
         },
         "title": "Base"

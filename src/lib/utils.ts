@@ -14,7 +14,7 @@ import * as pngToJpeg from 'png-to-jpeg';
 let pkg = packages as any;
 let locale = i18n();
 
-function getUpload (uploadMethod: string, config: any): Upload | null {
+function getUpload(uploadMethod: string, config: any): Upload | null {
     switch (uploadMethod) {
         case 'Local': return new Uploads.Local(config);
         case 'Coding': return new Uploads.Coding(config);
@@ -40,9 +40,9 @@ function getUpload (uploadMethod: string, config: any): Upload | null {
     return null;
 }
 
-function showProgress (message: string) {
+function showProgress(message: string) {
     let show = true;
-    function stopProgress () {
+    function stopProgress() {
         show = false;
     }
 
@@ -63,7 +63,7 @@ function showProgress (message: string) {
     return stopProgress;
 }
 
-function editorEdit (selection: vscode.Selection | vscode.Position | undefined | null, text: string): Promise<boolean> {
+function editorEdit(selection: vscode.Selection | vscode.Position | undefined | null, text: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
         vscode.window.activeTextEditor?.edit(editBuilder => {
             if (selection) {
@@ -73,7 +73,7 @@ function editorEdit (selection: vscode.Selection | vscode.Position | undefined |
     });
 }
 
-function insertToEnd (text: string): Promise<boolean> {
+function insertToEnd(text: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
         let linenumber = vscode.window.activeTextEditor?.document.lineCount || 1;
         let pos = vscode.window.activeTextEditor?.document.lineAt(linenumber - 1).range.end || new vscode.Position(0, 0);
@@ -83,7 +83,7 @@ function insertToEnd (text: string): Promise<boolean> {
     });
 }
 
-function getSelections (): vscode.Selection[] | null {
+function getSelections(): vscode.Selection[] | null {
     let editor = vscode.window.activeTextEditor;
     if (!editor) {
         return null; // No open text editor
@@ -109,7 +109,7 @@ async function formatCode(filePath: string, selection: string, maxWidth: number,
     }
 }
 
-async function variableGetter (variable: string,
+async function variableGetter(variable: string,
     { filePath, isPaste, match, context, saveName }:
         {
             filePath: string,
@@ -186,7 +186,7 @@ async function variableGetter (variable: string,
     return '';
 }
 
-async function formatName (format: string, filePath: string, isPaste: boolean): Promise<string> {
+async function formatName(format: string, filePath: string, isPaste: boolean): Promise<string> {
     let saveName = format;
     let variables = [
         'filename', 'mdname', 'path', 'hash', 'timestramp', 'timestamp', 'YY', 'MM', 'DD', 'HH', 'hh', 'mm', 'ss', 'mss', 'rand,(\\d+)', 'prompt'
@@ -211,7 +211,7 @@ async function formatName (format: string, filePath: string, isPaste: boolean): 
     return saveName;
 }
 
-async function getAlt (format: string, filePath: string, context: vscode.ExtensionContext) {
+async function getAlt(format: string, filePath: string, context: vscode.ExtensionContext) {
     let alt = format;
     let variables = [
         'filename', 'mdname', 'path', 'hash', 'timestamp', 'YY', 'MM', 'DD', 'HH', 'hh', 'mm', 'ss', 'mss', 'rand,(\\d+)', 'index', 'prompt'
@@ -236,7 +236,7 @@ async function getAlt (format: string, filePath: string, context: vscode.Extensi
     return alt;
 }
 
-function mkdirs (dirname: string) {
+function mkdirs(dirname: string) {
     //console.debug(dirname);
     if (fs.existsSync(dirname)) {
         return true;
@@ -248,18 +248,18 @@ function mkdirs (dirname: string) {
     }
 }
 
-function html2Markdown (data: string): string {
+function html2Markdown(data: string): string {
     let turndownService = new TurndownService({ codeBlockStyle: 'fenced', headingStyle: 'atx', });
     turndownService.use(gfm);
     return turndownService.turndown(data);
 }
 
-function getConfig () {
+function getConfig() {
     const configurations: { properties: object, title: string }[] = pkg.contributes.configuration;
     const keys: string[] = configurations.reduce((acc, config) => acc.concat(Object.keys(config.properties)), [] as string[])
 
     let values: Config = {};
-    function toVal (str: string, val: string | undefined, cfg: Config): string | Config {
+    function toVal(str: string, val: string | undefined, cfg: Config): string | Config {
         let keys = str.split('.');
         if (keys.length === 1) {
             cfg[keys[0]] = val;
@@ -272,7 +272,7 @@ function getConfig () {
     return values;
 }
 
-function getPasteImage (imagePath: string): Promise<string[]> {
+function getPasteImage(imagePath: string): Promise<string[]> {
     return new Promise((resolve, reject) => {
         if (!imagePath) { return; }
 
@@ -361,7 +361,7 @@ function getPasteImage (imagePath: string): Promise<string[]> {
     });
 }
 
-function getRichText (): Promise<string> {
+function getRichText(): Promise<string> {
     return new Promise((resolve, reject) => {
         let platform = process.platform;
         if (platform === 'win32') {
@@ -435,7 +435,7 @@ function getRichText (): Promise<string> {
     });
 }
 
-function getCurrentRoot (): string {
+function getCurrentRoot(): string {
     const editor = vscode.window.activeTextEditor;
     if (!editor || !vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length < 1) { return ''; }
     const resource = editor.document.uri;
@@ -451,40 +451,47 @@ function getCurrentRoot (): string {
     return folder.uri.fsPath;
 }
 
-function getCurrentFilePath (): string {
+function getCurrentFilePath(): string {
     const editor = vscode.window.activeTextEditor;
     if (!editor || !vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length < 1) { return ''; }
     return editor.document.uri.fsPath;
 }
 
-function getTmpFolder () {
+function getTmpFolder() {
     let savePath = path.join(tmpdir(), pkg.name);
     if (!fs.existsSync(savePath)) { fs.mkdirSync(savePath); }
     return savePath;
 }
 
-function convertImage (imagePath: string): Promise<string> {
+function normalizeJpegQuality(quality: unknown): number {
+    const q = typeof quality === 'number' ? quality : Number(quality);
+    if (!Number.isFinite(q)) { return 90; }
+    return Math.max(1, Math.min(100, Math.round(q)));
+}
+
+function convertImage(imagePath: string, quality: number = 90): Promise<string> {
+    const q = normalizeJpegQuality(quality);
     return new Promise((resolve, reject) => {
-        pngToJpeg({ quality: 90 })(fs.readFileSync(imagePath)).then((output: Buffer) => {
+        pngToJpeg({ quality: q })(fs.readFileSync(imagePath)).then((output: Buffer) => {
             const newImage = path.join(path.dirname(imagePath), path.basename(imagePath, path.extname(imagePath)) + '.jpg');
             fs.writeFileSync(newImage, output);
             resolve(newImage);
             fs.unlinkSync(imagePath);
-        })
+        }).catch(reject)
     });
 }
 
-function sleep (time: number) {
+function sleep(time: number) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
 
-function confirm (message: string, options: string[]): Promise<string | undefined> {
+function confirm(message: string, options: string[]): Promise<string | undefined> {
     return new Promise((resolve, reject) => {
         return vscode.window.showInformationMessage(message, ...options).then(resolve);
     });
 }
 
-function prompt (message: string, defaultVal: string = ''): Promise<string | undefined> {
+function prompt(message: string, defaultVal: string = ''): Promise<string | undefined> {
     return new Promise((resolve, reject) => {
         return vscode.window.showInputBox({
             value: defaultVal,
@@ -493,13 +500,13 @@ function prompt (message: string, defaultVal: string = ''): Promise<string | und
     });
 }
 
-function hash (buffer: Buffer): string {
+function hash(buffer: Buffer): string {
     let sha256 = crypto.createHash('sha256');
     let hash = sha256.update(buffer).digest('hex');
     return hash;
 }
 
-function getOpenCmd (): string {
+function getOpenCmd(): string {
     let cmd = 'start';
     if (process.platform === 'win32') {
         cmd = 'start';
@@ -511,7 +518,7 @@ function getOpenCmd (): string {
     return cmd;
 }
 
-function noticeComment (context: vscode.ExtensionContext) {
+function noticeComment(context: vscode.ExtensionContext) {
     let notice = context.globalState.get('notice');
     let usetimes: number = context.globalState.get('usetimes') || 0;
     if (!notice && usetimes > 100) {

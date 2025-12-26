@@ -29,7 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
     let uploads: Upload[] = getUploadInstance(config);
 
     let pasteCommand = vscode.commands.registerCommand('markdown-image.paste', async () => {
-        let stop = () => {};
+        let stop = () => { };
         try {
             stop = utils.showProgress($l['uploading']);
 
@@ -40,7 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
             let images = await utils.getPasteImage(savePath);
             images = images.filter(img => ['.jpg', '.jpeg', '.gif', '.bmp', '.png', '.webp', '.svg'].find(ext => img.endsWith(ext)));
             if (config.base.fileFormat == 'jpg' && images.length === 1 && images[0] == savePath) {
-                images[0] = await utils.convertImage(images[0])
+                images[0] = await utils.convertImage(images[0], config.base.jpgQuality)
             }
 
             let urls = [], maxWidth = [];
@@ -57,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
                     if (j == 0) p = result;
                 }
                 images[i] = name;
-                if(p) { urls.push(p); }
+                if (p) { urls.push(p); }
             }
 
             let insertCode = '', insertTag = '';
@@ -66,14 +66,13 @@ export function activate(context: vscode.ExtensionContext) {
                 if (selections?.length === 1 && editor?.document.getText(selections[0])) {
                     selection = `${editor?.document.getText(selections[0])} ${i + 1}`;
                 }
-                else if(selections?.[i] && editor?.document.getText(selections[i]))
-                {
+                else if (selections?.[i] && editor?.document.getText(selections[i])) {
                     selection = selections?.[i] && editor?.document.getText(selections[i]);
                 }
 
                 if (config.base.uploadMethod !== 'Data URL') {
-                    if(config.base.urlEncode) { 
-                        urls[i] = encodeURIComponent(urls[i].toString()).replace(/%5C/g, '\\').replace(/%2F/g, '/').replace(/%3A/g, ':').replace(/%40/g, '@'); 
+                    if (config.base.urlEncode) {
+                        urls[i] = encodeURIComponent(urls[i].toString()).replace(/%5C/g, '\\').replace(/%2F/g, '/').replace(/%3A/g, ':').replace(/%40/g, '@');
                     } else {
                         urls[i] = urls[i].replaceAll(' ', '%20');
                     }
@@ -85,8 +84,7 @@ export function activate(context: vscode.ExtensionContext) {
                         insertCode += text;
                     }
                 }
-                else
-                {
+                else {
                     let tag = new Date().getTime().toString();
                     let text = await utils.formatCode(tag, selection, maxWidth[i], 'Markdown', '');
                     tag = `\n[${tag}]: ${urls[i]}`;
@@ -127,18 +125,18 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(pasteCommand);
 
     let configCommand = vscode.commands.registerCommand('markdown-image.config', () => {
-        vscode.commands.executeCommand('workbench.action.openSettings', 'markdown-image' );
+        vscode.commands.executeCommand('workbench.action.openSettings', 'markdown-image');
     });
 
     context.subscriptions.push(configCommand);
 
     let richTextCommand = vscode.commands.registerCommand('markdown-image.paste-rich-text', async () => {
-        let stop = () => {};
+        let stop = () => { };
         try {
             let editor = vscode.window.activeTextEditor;
             let text = await utils.getRichText();
 
-            if(text) {
+            if (text) {
                 utils.editorEdit(editor?.selection, utils.html2Markdown(text));
             }
         } catch (error) {
@@ -151,7 +149,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(richTextCommand);
 
-    vscode.workspace.onDidChangeConfiguration(function(event) {
+    vscode.workspace.onDidChangeConfiguration(function (event) {
         config = utils.getConfig();
         uploads = getUploadInstance(config);
     });
